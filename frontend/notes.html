@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scibber – My Notes</title>
+  <link rel="stylesheet" href="css/notes.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-left">
+      <img src="assets/logo.png" class="nav-logo" alt="Scibber Logo" />
+      <span class="nav-title">Scibber</span>
+    </div>
+    <div class="nav-right">
+      <a href="home.html">Home</a>
+      <a href="notes.html" class="active">My Notes</a>
+      <button class="logout-btn" onclick="logoutUser()">Logout</button>
+    </div>
+  </nav>
+
+  <section class="notes-section">
+    <h1>My Notes</h1>
+    <div id="notesList" class="notes-grid"></div>
+  </section>
+
+  <button class="add-btn" id="openAdd">＋</button>
+
+  <div class="modal" id="noteModal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Add Note</h2>
+      <input type="text" id="noteTitle" placeholder="Title" required />
+      <textarea id="noteBody" placeholder="Write your note here..." required></textarea>
+      <div class="modal-actions">
+        <button id="saveNote" class="btn-primary">Save</button>
+        <button id="cancelNote" class="btn-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/notes.js"></script>
+</body>
+</html>

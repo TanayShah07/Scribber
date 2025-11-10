@@ -7,25 +7,32 @@
   <link rel="stylesheet" href="css/notes.css" />
 </head>
 <body>
+  <!-- Navbar -->
   <nav class="navbar">
     <div class="nav-left">
       <img src="assets/logo.png" class="nav-logo" alt="Scibber Logo" />
-      <span class="nav-title">Scibber</span>
     </div>
     <div class="nav-right">
       <a href="home.html">Home</a>
       <a href="notes.html" class="active">My Notes</a>
+
+      <!-- Theme Toggle -->
+      <button id="themeToggle" class="theme-toggle">🌙</button>
+
       <button class="logout-btn" onclick="logoutUser()">Logout</button>
     </div>
   </nav>
 
+  <!-- Notes Section -->
   <section class="notes-section">
     <h1>My Notes</h1>
     <div id="notesList" class="notes-grid"></div>
   </section>
 
+  <!-- Add Note Button -->
   <button class="add-btn" id="openAdd">＋</button>
 
+  <!-- Add/Edit Note Modal -->
   <div class="modal" id="noteModal">
     <div class="modal-content">
       <h2 id="modalTitle">Add Note</h2>
@@ -38,6 +45,22 @@
     </div>
   </div>
 
+  <!-- 🧾 View Note Modal -->
+  <div id="viewModal" class="modal">
+    <div class="modal-content view">
+      <h2 id="viewTitle">Note Title</h2>
+      <p id="viewBody">Note content goes here...</p>
+      <small id="viewDate">Created on:</small>
+
+      <div id="viewSummary" class="view-summary">No summary available yet.</div>
+
+      <div class="modal-actions">
+        <button id="closeView" class="btn-primary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
   <script src="js/auth.js"></script>
   <script src="js/notes.js"></script>
 </body>

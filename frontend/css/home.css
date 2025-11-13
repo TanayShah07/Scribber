@@ -225,3 +225,51 @@ body.dark .nav-title {
   background: #93c5fd;
   border-radius: 3px;
 }
+
+.hamburger {
+  display: none;
+  font-size: 30px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #1e3a8a;
+}
+
+body.dark .hamburger {
+  color: white;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+@media (max-width: 768px) {
+  .nav-right {
+    position: absolute;
+    top: 78px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    width: 100%;
+    flex-direction: column;
+    padding: 20px 0;
+    gap: 20px;
+    display: none;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+  }
+
+  .nav-right.open {
+    display: flex;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  .navbar {
+    padding: 16px 24px;
+  }
+}
+

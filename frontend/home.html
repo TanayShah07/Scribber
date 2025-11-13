@@ -7,12 +7,17 @@
   <link rel="stylesheet" href="css/home.css" />
 </head>
 <body>
+
   <!-- 🧭 Navbar -->
   <nav class="navbar">
     <div class="nav-left">
       <img src="assets/logo.png" class="nav-logo" alt="Scibber Logo" />
     </div>
-    <div class="nav-right">
+
+    <!-- Hamburger -->
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
+
+    <div class="nav-right" id="navMenu">
       <a href="home.html" class="active">Home</a>
       <a href="notes.html">My Notes</a>
       <button class="logout-btn" onclick="logoutUser()">Logout</button>
@@ -22,12 +27,8 @@
   <!-- 🌟 Hero Section -->
   <section class="hero">
     <h1>Welcome to <span>Scibber</span></h1>
-    <p>
-      Your smart AI-powered note companion. Create, summarize, and organize your thoughts effortlessly.
-    </p>
-    <button class="cta-btn" onclick="window.location.href='notes.html'">
-      Go to My Notes
-    </button>
+    <p>Your smart AI-powered note companion. Create, summarize, and organize your thoughts effortlessly.</p>
+    <button class="cta-btn" onclick="window.location.href='notes.html'">Go to My Notes</button>
   </section>
 
   <!-- 💬 Floating Chatbot -->
@@ -46,16 +47,13 @@
     </div>
 
     <div class="chat-input">
-      <input
-        type="text"
-        id="userInput"
-        placeholder="Type your message..."
-      />
+      <input type="text" id="userInput" placeholder="Type your message..." />
       <button id="sendBtn">Send</button>
     </div>
   </div>
 
   <!-- 📜 Scripts -->
+  <script src="js/navbar.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/home.js"></script>
 </body>

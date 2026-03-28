@@ -8,8 +8,17 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ SIMPLE CORS (NO ISSUES)
-app.use(cors()); // 🔥 allow all (best for now)
+// ✅ 🔥 PROPER CORS (FIXES YOUR ERROR)
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
+
+// ✅ Handle preflight requests (VERY IMPORTANT)
+app.options("*", cors());
 
 app.use(express.json());
 

@@ -1,3 +1,6 @@
+// === BASE URL (IMPORTANT) ===
+const BASE_URL = "https://scribber-qxvl.onrender.com";
+
 // === ELEMENT REFERENCES ===
 const openAdd = document.getElementById("openAdd");
 const modal = document.getElementById("noteModal");
@@ -15,6 +18,7 @@ let editId = null;
 // === THEME TOGGLE ===
 const currentTheme = localStorage.getItem("scibber-theme") || "light";
 document.body.classList.toggle("dark", currentTheme === "dark");
+
 if (themeToggle)
   themeToggle.textContent = currentTheme === "dark" ? "☀️" : "🌙";
 
@@ -37,7 +41,7 @@ openAdd.addEventListener("click", () => {
   document.getElementById("modalTitle").textContent = "Add Note";
 });
 
-// === CANCEL NOTE MODAL ===
+// === CANCEL ===
 cancelNote.addEventListener("click", () => {
   modal.classList.remove("fade-in");
   setTimeout(() => (modal.style.display = "none"), 150);
@@ -47,6 +51,7 @@ cancelNote.addEventListener("click", () => {
 saveNote.addEventListener("click", () => {
   const title = titleInput.value.trim();
   const body = bodyInput.value.trim();
+
   if (!title || !body) return alert("Please fill all fields");
 
   const notes = JSON.parse(localStorage.getItem("scibber-notes") || "[]");
@@ -64,24 +69,23 @@ saveNote.addEventListener("click", () => {
   }
 
   localStorage.setItem("scibber-notes", JSON.stringify(notes));
-  modal.classList.remove("fade-in");
-  setTimeout(() => (modal.style.display = "none"), 150);
+  modal.style.display = "none";
   renderNotes(true);
 });
 
 // === RENDER NOTES ===
 function renderNotes(animate = false) {
   const notes = JSON.parse(localStorage.getItem("scibber-notes") || "[]");
+
   if (!notes.length) {
-    notesList.innerHTML = `<p>No notes yet. Click the + to add one.</p>`;
+    notesList.innerHTML = `<p>No notes yet. Click + to add one.</p>`;
     return;
   }
 
-  // 🧱 Generate notes dynamically
   notesList.innerHTML = notes
     .map(
       (n) => `
-    <div class="note-card ${animate ? "fade-in" : ""}" data-id="${n.id}">
+    <div class="note-card ${animate ? "fade-in" : ""}">
       <h3>${n.title}</h3>
       <p>${n.body}</p>
       <small>${new Date(n.createdAt).toLocaleString()}</small>
@@ -99,25 +103,24 @@ function renderNotes(animate = false) {
     )
     .join("");
 
-  // 🧩 Attach button listeners dynamically after rendering
-  document.querySelectorAll(".edit").forEach((btn, index) => {
-    btn.addEventListener("click", () => editNote(notes[index].id));
-  });
+  document.querySelectorAll(".edit").forEach((btn, i) =>
+    btn.addEventListener("click", () => editNote(notes[i].id))
+  );
 
-  document.querySelectorAll(".delete").forEach((btn, index) => {
-    btn.addEventListener("click", () => deleteNote(notes[index].id));
-  });
+  document.querySelectorAll(".delete").forEach((btn, i) =>
+    btn.addEventListener("click", () => deleteNote(notes[i].id))
+  );
 
-  document.querySelectorAll(".summarize").forEach((btn, index) => {
-    btn.addEventListener("click", () => summarizeNote(notes[index].id));
-  });
+  document.querySelectorAll(".summarize").forEach((btn, i) =>
+    btn.addEventListener("click", () => summarizeNote(notes[i].id))
+  );
 
-  document.querySelectorAll(".view").forEach((btn, index) => {
-    btn.addEventListener("click", () => viewNote(notes[index].id));
-  });
+  document.querySelectorAll(".view").forEach((btn, i) =>
+    btn.addEventListener("click", () => viewNote(notes[i].id))
+  );
 }
 
-// === DELETE NOTE ===
+// === DELETE ===
 function deleteNote(id) {
   let notes = JSON.parse(localStorage.getItem("scibber-notes") || "[]");
   notes = notes.filter((n) => n.id !== id);
@@ -125,46 +128,38 @@ function deleteNote(id) {
   renderNotes();
 }
 
-// === EDIT NOTE ===
+// === EDIT ===
 function editNote(id) {
   const notes = JSON.parse(localStorage.getItem("scibber-notes") || "[]");
   const note = notes.find((n) => n.id === id);
-  if (!note) return;
 
   modal.style.display = "flex";
-  modal.classList.add("fade-in");
   titleInput.value = note.title;
   bodyInput.value = note.body;
   editId = id;
-  document.getElementById("modalTitle").textContent = "Edit Note";
 }
 
-// === AI SUMMARIZE (backend connected) ===
+// === AI SUMMARIZE ===
 async function summarizeNote(id) {
   const notes = JSON.parse(localStorage.getItem("scibber-notes") || "[]");
   const note = notes.find((n) => n.id === id);
-  if (!note) return;
 
   const summaryDiv = document.getElementById(`summary-${id}`);
-  summaryDiv.textContent = "✨ Summarizing using AI...";
+  summaryDiv.textContent = "✨ Summarizing...";
 
   try {
-    const response = await fetch("http://localhost:5000/summarize", {
+    const res = await fetch(`${BASE_URL}/summarize`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ text: note.body }),
     });
 
-    const data = await response.json();
-
-    if (data.summary) {
-      summaryDiv.textContent = `🧠 Summary: ${data.summary}`;
-    } else {
-      summaryDiv.textContent = "⚠️ Failed to summarize. Try again.";
-    }
-  } catch (error) {
-    summaryDiv.textContent = "❌ Error connecting to AI.";
-    console.error("Error summarizing note:", error);
+    const data = await res.json();
+    summaryDiv.textContent = data.summary || "Error summarizing";
+  } catch (err) {
+    summaryDiv.textContent = "❌ Server error";
   }
 }
 
@@ -172,29 +167,23 @@ async function summarizeNote(id) {
 function viewNote(id) {
   const notes = JSON.parse(localStorage.getItem("scibber-notes") || "[]");
   const note = notes.find((n) => n.id === id);
-  if (!note) return;
 
   document.getElementById("viewTitle").textContent = note.title;
   document.getElementById("viewBody").textContent = note.body;
-  document.getElementById(
-    "viewDate"
-  ).textContent = `Created on: ${new Date(note.createdAt).toLocaleString()}`;
+  document.getElementById("viewDate").textContent =
+    new Date(note.createdAt).toLocaleString();
 
-  const summaryDiv = document.getElementById(`summary-${id}`);
-  const summaryText =
-    summaryDiv && summaryDiv.textContent
-      ? summaryDiv.textContent
-      : "No summary available yet.";
-  document.getElementById("viewSummary").textContent = summaryText;
+  const summary = document.getElementById(`summary-${id}`).textContent;
+  document.getElementById("viewSummary").textContent =
+    summary || "No summary available";
 
   viewModal.style.display = "flex";
-  viewModal.classList.add("fade-in");
 }
 
+// === CLOSE VIEW ===
 closeView.addEventListener("click", () => {
-  viewModal.classList.remove("fade-in");
-  setTimeout(() => (viewModal.style.display = "none"), 150);
+  viewModal.style.display = "none";
 });
 
-// === INITIAL RENDER ===
+// === INIT ===
 renderNotes();

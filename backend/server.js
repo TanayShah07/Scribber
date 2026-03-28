@@ -1,44 +1,26 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// --- ES Module setup ---
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// ✅ Load .env (Render/Vercel automatically injects)
 dotenv.config();
 
-// --- Express setup ---
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// --- ✅ CORS FIX (VERY IMPORTANT) ---
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5500",
-      "http://127.0.0.1:5500",
-      "https://my-portfolio-bp5n.vercel.app", // 🔥 ADD YOUR DEPLOYED FRONTEND
-    ],
-    methods: ["GET", "POST"],
-    credentials: true,
-  })
-);
+// ✅ SIMPLE CORS (NO ISSUES)
+app.use(cors()); // 🔥 allow all (best for now)
 
 app.use(express.json());
 
-// --- ✅ Gemini Init ---
+// ✅ Gemini setup
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Models
 const primaryModel = "gemini-2.5-flash";
 const fallbackModel = "gemini-1.5-pro-latest";
 
-// --- Retry + fallback ---
+// 🔁 Retry + fallback
 async function generateWithRetry(prompt, retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
@@ -49,10 +31,10 @@ async function generateWithRetry(prompt, retries = 3) {
       const msg = error.message || String(error);
 
       if (msg.includes("503") && i < retries - 1) {
-        console.log(`⚠️ Retry ${i + 1}/${retries}...`);
+        console.log(`⚠️ Retry ${i + 1}/${retries}`);
         await new Promise((res) => setTimeout(res, 2000));
       } else if (msg.includes("503")) {
-        console.log("🚨 Switching to fallback model...");
+        console.log("🚨 Using fallback model...");
         const backup = genAI.getGenerativeModel({ model: fallbackModel });
         const backupRes = await backup.generateContent(prompt);
         return backupRes.response.text();
@@ -63,12 +45,12 @@ async function generateWithRetry(prompt, retries = 3) {
   }
 }
 
-// --- Health check ---
+// ✅ Health check
 app.get("/", (req, res) => {
   res.send("✅ Scribber Backend Running!");
 });
 
-// --- Summarize ---
+// 🧠 Summarize
 app.post("/summarize", async (req, res) => {
   try {
     const { text } = req.body;
@@ -87,7 +69,7 @@ app.post("/summarize", async (req, res) => {
   }
 });
 
-// --- Chat ---
+// 💬 Chat
 app.post("/chat", async (req, res) => {
   try {
     const { message } = req.body;
@@ -105,7 +87,7 @@ app.post("/chat", async (req, res) => {
   }
 });
 
-// --- Start server ---
+// 🚀 Start server
 app.listen(PORT, () => {
   console.log(`🚀 Backend running on port ${PORT}`);
   console.log(

@@ -1,5 +1,4 @@
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -8,17 +7,19 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ 🔥 PROPER CORS (FIXES YOUR ERROR)
-app.use(
-  cors({
-    origin: "*",
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type"],
-  })
-);
+// 🔥 FINAL CORS FIX (MANUAL — GUARANTEED WORKING)
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
 
-// ✅ Handle preflight requests (VERY IMPORTANT)
-app.options("*", cors());
+  // Handle preflight request
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
 
 app.use(express.json());
 
@@ -29,7 +30,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const primaryModel = "gemini-2.5-flash";
 const fallbackModel = "gemini-1.5-pro-latest";
 
-// 🔁 Retry + fallback
+// 🔁 Retry + fallback logic
 async function generateWithRetry(prompt, retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
@@ -39,11 +40,14 @@ async function generateWithRetry(prompt, retries = 3) {
     } catch (error) {
       const msg = error.message || String(error);
 
+      // Retry if overloaded
       if (msg.includes("503") && i < retries - 1) {
-        console.log(`⚠️ Retry ${i + 1}/${retries}`);
+        console.log(`⚠️ Retry ${i + 1}/${retries}...`);
         await new Promise((res) => setTimeout(res, 2000));
-      } else if (msg.includes("503")) {
-        console.log("🚨 Using fallback model...");
+      }
+      // Fallback model
+      else if (msg.includes("503")) {
+        console.log("🚨 Switching to fallback model...");
         const backup = genAI.getGenerativeModel({ model: fallbackModel });
         const backupRes = await backup.generateContent(prompt);
         return backupRes.response.text();
@@ -59,7 +63,7 @@ app.get("/", (req, res) => {
   res.send("✅ Scribber Backend Running!");
 });
 
-// 🧠 Summarize
+// 🧠 Summarization Route
 app.post("/summarize", async (req, res) => {
   try {
     const { text } = req.body;
@@ -78,7 +82,7 @@ app.post("/summarize", async (req, res) => {
   }
 });
 
-// 💬 Chat
+// 💬 Chat Route
 app.post("/chat", async (req, res) => {
   try {
     const { message } = req.body;
